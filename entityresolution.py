@@ -118,6 +118,8 @@ def GPT_compare_terms(term1, term2):
         return None
 
 
+#Entity Resolution Outputs
+
 def compare_roots(row):
     rootA, rootB = row["Root A"], row["Root B"]
     return GPT_compare_terms(rootA, rootB)
@@ -134,6 +136,41 @@ def compare_context(row):
     entityA, entityB = row["Entity A"], row["Entity B"]
     sentA, sentB = row["Sentence A"], row["Sentence B"]
     return GPT_sentence(entityA, sentA, entityB, sentB)
+
+
+
+#Determining whether context is needed
+
+def context_type(row):
+    entityA, chunkA = row["Entity A"], row["Chunk A"]
+    entityB, chunkB = row["Entity B"], row["Chunk B"]
+    A = GPT_entities_helper(entityA, chunkA) == 1
+    B = GPT_entities_helper(entityB, chunkB) == 1
+    if A and B:
+        return 0
+    elif not A and B:
+        return 1
+    elif A and not B:
+        return 1
+    else:
+        return 2
+
+def ModContext(row):
+    entityA, rootA = row["Entity A"], row["Root A"]
+    entityB, rootB = row["Entity B"], row["Root B"]
+    context = row["ContextType"]
+    if context == 0:
+        return row["Entities"]
+    elif context == 1:
+        return row["Roots"]
+    else:
+        return row["Roots"]
+
+def check_positives(row):
+    if row["Entities"]:
+        return row["ModifiedContext"]
+    return 0
+
     
 
 
